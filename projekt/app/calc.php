@@ -8,9 +8,9 @@ require_once dirname(__FILE__).'/../config.php';
 
 // 1. pobranie parametrów
 
-$amount = $_REQUEST ['kwota'];
-$time = $_REQUEST ['czas'];
-$percentage = $_REQUEST ['oprocentowanie'];
+$amount = $_REQUEST ['amount'];
+$time = $_REQUEST ['time'];
+$percentage = $_REQUEST ['percentage'];
 
 // 2. walidacja parametrów z przygotowaniem zmiennych dla widoku
 
