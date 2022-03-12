@@ -9,11 +9,11 @@
 <h1>Witaj w kalkulatorze kredytowym. Wpisz informacje w odpowiednie rubryki by obliczyć swoją rate.</h1>
 <form action="<?php print(_APP_URL);?>/app/calc.php" method="post">
 	<label for="id_amount">Kwota: </label>
-	<input id="id_amount" type="text" name="kwota" value="<?php if(isset($amount))print($amount); ?>" /><br />
-	<label for="id_percentage">Na ile lat: </label>
-	<input id="id_percentage" type="text" name="oprocentowanie" value="<?php if(isset($percentage))print($percentage); ?>" /><br />
-	<label for="id_time">Oprocentowanie(w %): </label>
-	<input id="id_time" type="text" name="czas" value="<?php if(isset($time))print($time); ?>" /><br />
+	<input id="id_amount" type="text" name="amount" value="<?php if(isset($amount))print($amount); ?>" /><br />
+	<label for="id_time">Na ile lat: </label>
+	<input id="id_time" type="text" name="time" value="<?php if(isset($time))print($time); ?>" /><br />
+	<label for="id_percentage">Oprocentowanie(w %): </label>
+	<input id="id_percentage" type="text" name="percentage" value="<?php if(isset($percentage))print($percentage); ?>" /><br />
 	<input type="submit" value="Oblicz rate" />
 </form>	
 
