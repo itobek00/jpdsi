@@ -58,10 +58,10 @@ if (empty ( $info )) { // gdy brak błędów
 	$percentage = doubleval($percentage);
 	
 	
-	$q = 1+(($interest/100)/12);
+	$q = 1+(($percentage/100)/12);
 	$years = $time * 12;
 	//wykonanie operacji;
-	$rata = $sum*pow($q, $years)*($q-1)/((pow($q, $years))-1);
+	$rata = $amount*pow($q, $years)*($q-1)/((pow($q, $years))-1);
 	$result = round($rata, 2);
 	
 }
