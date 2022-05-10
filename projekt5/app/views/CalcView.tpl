@@ -1,58 +1,40 @@
 {extends file="main.tpl"}
-{* przy zdefiniowanych folderach nie trzeba już podawać pełnej ścieżki *}
-
-{block name=footer}przykładowa tresć stopki wpisana do szablonu głównego z szablonu kalkulatora{/block}
 
 {block name=content}
 
-<h3>Kalkulator ratalny</h2>
 
 
-<form class="pure-form pure-form-stacked" action="{$conf->action_root}calcCompute" method="post">
+<form action="{$conf->action_root}calcCompute" method="post" class="pure-form pure-form-aligned bottom-margin">
+	<legend>Kalkulator ratalny</legend>
 	<fieldset>
-		<label for="id_amount">Kwota kredytu: </label>
-		<input id="id_amount" type="text" name="amount" placeholder="np. 30000 (zł)" value="{$form->amount}" /> <br />
-		<label for="id_percentage">Oprocentowanie: </label>
-		<input id="id_percentage" type="text" name="percentage" placeholder="np. 3.5 (%)" value="{$form->percentage}" /> <br />
-		<label for="id_time">Na ile lat: </label>
-		<input id="id_time" type="text" name="time" placeholder="np. 10 (lat)" value="{$form->time}" /> <br />
-		</fieldset>	
-		<input type="submit" value="Oblicz" class="pure-button pure-button-primary" />
-</form>	
 
-<div class="messages">
+		<div style="position: relative;left: 5%;">
+			<label for="s">Kwota kredytu: </label>
+			<input id="s" type="text" name="sum" value="{$form->sum}"/><br/><br/>
+		</div>
+		<div style="position: relative;left: 40%; top:-55px;">
+			<label for="p">Na ile lat: </label>
+			<input id="p" type="text" name="period" placeholder="Ile lat" value="{$form->period}"/><br/><br/>
+		</div>
+		<div style="position: relative;left: 75%; top:-108px;">
+			<label for="per">Oprocentowanie: </label>
+			<input id="per" type="text" name="percent" placeholder="6.5"
+				   title="Używaj tylko kropki. Maksymalnie dwie liczby po kropce.  " value="{$form->percent}"/><br/>
+		</div>
+	</fieldset>
 
-{* wyświeltenie listy błędów, jeśli istnieją *}
-{if $msgs->isError()}
-	<h4>Wystąpiły błędy: </h4>
-	<ol class="err">
-	{foreach $msgs->getErrors() as $err}
-	{strip}
-		<li>{$err}</li>
-	{/strip}
-	{/foreach}
-	</ol>
-{/if}
+	<button style="position: relative;left: 47%; top:-20px;font-size: 175%;" type="submit"
+			class="button-xlarge pure-button "><i class="fa-solid fa-calculator fa-lg fa-beat"></i> Oblicz
+	</button>
 
-{* wyświeltenie listy informacji, jeśli istnieją *}
-{if $msgs->isInfo()}
-	<h4>Informacje: </h4>
-	<ol class="inf">
-	{foreach $msgs->getInfos() as $inf}
-	{strip}
-		<li>{$inf}</li>
-	{/strip}
-	{/foreach}
-	</ol>
-{/if}
+</form>
+
+	{include file='messages.tpl'}
 
 {if isset($res->result)}
-	<h4>Wynik</h4>
-	<p class="res">
-	{$res->result}
-	</p>
-{/if}
-
+<div class="messages info">
+	Wynik: {$res->result}
 </div>
+{/if}
 
 {/block}

@@ -1,37 +1,27 @@
 <?php
 require_once 'init.php';
-// Skrypt kontrolera głównego jako jedyny "punkt wejścia" inicjuje aplikację.
+// Rozszerzenia w aplikacji bazodanowej:
+// - nowe pola dla konfiguracji połączenia z bazą danych w klasie Config
+// - inicjalizacja połączenia z bazą w skrypcie init.php, za pomocą funkcji getDB() - podobnie jak dla wcześniejszych obiektów
 
-// Inicjacja ładuje konfigurację, definiuje funkcje getConf(), getMessages() oraz getSmarty(),
-// pozwalające odwołać się z każdego miejsca w systemie do obiektów konfiguracji, messages i smarty.
+// Do połączenia z bazą danych wykorzystujemy "maleńką" bibliotekę Medoo, która obudowuje standardowy obiekt PDO za pomocą klasy Medoo.
+// Biblioteka Medoo ułatwia dostęp do bazy dla większości standardowych rodzajów zapytań, przez brak konieczności używania SQL'a.
 
-// Nowością jest sama klasa ClassLoader oraz utworzenie obiektu tej klasy w skrypcie init z dostępem jak dla
-// wcześniejszych obiekkót za pomocą funkcji getLoader(). Pozwala ona automatycznie załadować klasy umieszczone
-// w głównym folderze aplikacji - w podfolderach zgodnie z ich przestrzeniami nazw (które są częścią pełnej nazwy klasy).
+// Jeżeli użytkownik chce jednak używać bezpośrednio PDO, to biblioteki używamy jedynie w celu połączenia z bazą, a później
+// pobieramy obiekt PDO po połączeniu (metoda pdo() obiektu klasy Medoo).
 
-// Ponadto ładuje skrypt funkcji pomocniczych (functions.php) oraz wczytuje parametr 'action' do zmiennej $action.
-// Wystarczy już tylko podjąć decyzję co zrobić na podstawie $action.
+getRouter()->setDefaultRoute('personList');// akcja/ścieżka domyślna
+getRouter()->setLoginRoute('login'); // akcja/ścieżka na potrzeby logowania (przekierowanie, gdy nie ma dostępu)
 
-// Dodatkowo zmieniono organizację kontrolerów i widoków. Teraz wszystkie są w odpowiednio nazwanych folderach w app
+getRouter()->addRoute('calcShow',		'CalcCtrl');
+getRouter()->addRoute('calcCompute',		'CalcCtrl');
+getRouter()->addRoute('personList',		'PersonListCtrl');
+getRouter()->addRoute('loginShow',		'LoginCtrl');
+getRouter()->addRoute('login',			'LoginCtrl');
+getRouter()->addRoute('logout',			'LoginCtrl');
+getRouter()->addRoute('personNew',		'PersonEditCtrl',	['user','admin']);
+getRouter()->addRoute('personEdit',		'PersonEditCtrl',	['user','admin']);
+getRouter()->addRoute('personSave',		'PersonEditCtrl',	['user','admin']);
+getRouter()->addRoute('personDelete',	'PersonEditCtrl',	['admin']);
 
-switch ($action) {
-	default : // 'calcView'
-		// utwórz obiekt i uzyj
-		// (autoloader sam załaduje plik na podstawie przestrzeni nazw względem folderu głównego aplikacji)
-		$ctrl = new app\controllers\CalcCtrl();
-		$ctrl->generateView ();
-	break;
-	case 'calcCompute' :
-		// utwórz obiekt i uzyj
-		$ctrl = new app\controllers\CalcCtrl();
-		$ctrl->process ();
-	break;
-	case 'action1' :
-		// zrób coś innego ...
-		print('hello');
-	break;
-	case 'action2' :
-		// zrób coś innego ...
-		print('goodbye');
-	break;
-}
+getRouter()->go();

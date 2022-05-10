@@ -16,7 +16,7 @@ use app\forms\CalcForm;
 use app\transfer\CalcResult;
 
 /** Kontroler kalkulatora
- * @author Przemysław Kudłacik
+ *
  *
  */
 class CalcCtrl {
@@ -37,9 +37,9 @@ class CalcCtrl {
 	 * Pobranie parametrów
 	 */
 	public function getParams(){
-		$this->form->amount = getFromRequest('amount');
-		$this->form->percentage = getFromRequest('percentage');
-		$this->form->time = getFromRequest('time');
+        $this->form->sum = getFromRequest('sum');
+        $this->form->period = getFromRequest('period');
+        $this->form->percent = getFromRequest('percent');
 	}
 	
 	/** 
@@ -48,37 +48,36 @@ class CalcCtrl {
 	 */
 	public function validate() {
 		// sprawdzenie, czy parametry zostały przekazane
-		if (! (isset ( $this->form->amount ) && isset ( $this->form->percentage ) && isset ( $this->form->time ))) {
+        if (! (isset ( $this->form->sum ) && isset ( $this->form->period ) && isset ( $this->form->percent ))) {
 			// sytuacja wystąpi kiedy np. kontroler zostanie wywołany bezpośrednio - nie z formularza
 			return false;
 		}
 		
 		// sprawdzenie, czy potrzebne wartości zostały przekazane
-		if ($this->form->amount == "") {
-			getMessages()->addError('Nie podano kwoty');
-		}
-		if ($this->form->percentage == "") {
-			getMessages()->addError('Nie podano oprocentowania');
-		}
-		if ($this->form->time == "") {
-			getMessages()->addError('Nie podano na ile lat');
-		}
+        if ($this->form->sum == "") {
+            getMessages()->addError('Nie podano liczby 1');
+        }
+        if ($this->form->period == "") {
+            getMessages()->addError('Nie podano liczby 2');
+        }
+        if ($this->form->percent == "") {
+            getMessages()->addError('Nie podano liczby 3');
+        }
 		
 		// nie ma sensu walidować dalej gdy brak parametrów
 		if (! getMessages()->isError()) {
 			
 			// sprawdzenie, czy $x i $y są liczbami całkowitymi
-			if (! is_numeric ( $this->form->amount )) {
-				getMessages()->addError('Pierwsza wartość nie jest liczbą całkowitą');
-			}
-			
-			if (! is_numeric ( $this->form->percentage )) {
-				getMessages()->addError('Druga wartość nie jest liczbą całkowitą');
-			}
-			
-			if (! is_numeric ( $this->form->time )) {
-				getMessages()->addError('Druga wartość nie jest liczbą całkowitą');
-			}
+            if (! is_numeric ( $this->form->sum )) {
+                getMessages()->addError('Pierwsza wartość nie jest liczbą całkowitą');
+            }
+
+            if (! is_numeric ( $this->form->period )) {
+                getMessages()->addError('Druga wartość nie jest liczbą całkowitą');
+            }
+            if (! is_numeric ( $this->form->percent )) {
+                getMessages()->addError('Trzecia wartość nie jest poprawną liczbą ');
+            }
 		}
 		
 		return ! getMessages()->isError();
@@ -87,46 +86,53 @@ class CalcCtrl {
 	/** 
 	 * Pobranie wartości, walidacja, obliczenie i wyświetlenie
 	 */
-	public function process(){
+	public function action_calcCompute(){
 
 		$this->getParams();
 		
 		if ($this->validate()) {
 				
 			//konwersja parametrów na int
-			$this->form->amount = intval($this->form->amount);
-			$this->form->time = intval($this->form->time);
-			$this->form->percentage = floatval($this->form->percentage);
-			getMessages()->addInfo('Parametry poprawne.');
-				
-			//wykonanie operacji
-			$q = 1+((($this->form->percentage)/100)/12);
-			$years = $this->form->time  * 12;
-			$rata = round($this->form->amount *pow($q, $years)*($q-1)/((pow($q, $years))-1),2);
-			$this->result->result = $rata;
-			}
-			
+            $this->form->sum = intval($this->form->sum);
+            $this->form->period = intval($this->form->period);
+            $this->form->percent = intval($this->form->percent);
+            getMessages()->addInfo('Parametry poprawne.');
+
+            //wykonanie operacji
+            if (inRole('admin')) {
+                $years = $this->form->period * 12;
+                $percent_2 = $this->form->percent / 100;
+                $k = 12 / (12 + $percent_2);
+
+                $rata = ($this->form->sum * $percent_2) / (12 * (1 - ($k ** $years)));
+                $this->result->result = round($rata, 2);
+            }
+            else{
+                getMessages()->addError('Tylko admin może liczyć.');
+            }
 			getMessages()->addInfo('Wykonano obliczenia.');
-		
+		}
 		
 		$this->generateView();
 	}
 	
+	public function action_calcShow(){
+		getMessages()->addInfo('Kalkulator kredytowy, wprowadź dane ');
+		$this->generateView();
+	}
 	
 	/**
 	 * Wygenerowanie widoku
 	 */
 	public function generateView(){
-		//nie trzeba już tworzyć Smarty i przekazywać mu konfiguracji i messages
-		// - wszystko załatwia funkcja getSmarty()
-		
-		getSmarty()->assign('page_title','Przykład 06b');
-		getSmarty()->assign('page_description','Kolejne rozszerzenia dla aplikacja z jednym "punktem wejścia". Do nowej struktury dołożono automatyczne ładowanie klas wykorzystując w strukturze przestrzenie nazw.');
-		getSmarty()->assign('page_header','Kontroler główny');
-					
+
+		getSmarty()->assign('user',unserialize($_SESSION['user']));
+
+		getSmarty()->assign('page_title','Super kalkulator - role');
+
 		getSmarty()->assign('form',$this->form);
 		getSmarty()->assign('res',$this->result);
 		
-		getSmarty()->display('CalcView.tpl'); // już nie podajemy pełnej ścieżki - foldery widoków są zdefiniowane przy ładowaniu Smarty
+		getSmarty()->display('CalcView.tpl');
 	}
 }
